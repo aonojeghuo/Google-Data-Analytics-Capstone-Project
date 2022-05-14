@@ -1,0 +1,253 @@
+---
+title: "Maximizing Bike-Share Customer Membership Rates at Cylistic"
+subtitle: "Descriptive analysis and recommendations"
+author: "DR Ajoke Onojeghuo"
+date: "May 7, 2022"
+geometry: margin=7cm
+output:
+  html_document:
+    theme:  readable
+    highlight: kate
+    toc: true
+    number_sections: true
+fig_caption: yes
+header includes:
+  - \usepackage{caption}
+   - \captionsetup[figure]{font=scriptsize}
+---
+
+```{r, echo=FALSE,fig.width=0.1, fig.height=0.1}
+htmltools::img(src = knitr::image_uri("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Cyclistic.png"), 
+               alt = 'logo', 
+               style = ' top:50px;left:200px; right:250px; padding:20px; width: 180px; height: 180px')
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background
+Since its launch in 2016, Cyclistic has grown to a fleet of 5,824 bicycles (bikes) that are geotracked and locked into a network of 692 stations across Chicago. These bikes can be unlocked from one station and  returned to any other station in the system anytime. Cyclistic has been largely successful due to the flexibility of its pricing plans (single-ride passes, full-day passes, and annual memberships). Casual riders  purchase single-ride or full-day passes while members purchase annual memberships. However, there is a need to encourage more annual memberships as the finance team has found that this is more profitable than casual (single-ride and full-day) passes.
+
+This analysis was commissioned to provide a descriptive summary of Cyclistic bike-share use trends for a 1-year period between April 2021 and March 2022. The results presented should be considered when designing marketing strategies to encourage more casual riders to become annual members through more flexible annual memberships.  
+
+```{r load packages, echo=FALSE,message=FALSE}
+##Load Libraries
+library(readxl)
+library(reshape2)
+library(tidyr)
+library(tidyverse)
+library(openxlsx)
+library(data.table)
+library(rlist)
+library(hms) ##time in HHMMSS
+library(leaflet)
+library(sf)
+library(mapview)
+library(ggmap)
+library(mapview)
+library(RColorBrewer)
+library(sf)
+library(viridis)
+library(rgeoboundaries)
+library(rgdal)
+library(rgeos)
+library(ggthemes)
+library(ggsflabel)
+library(ggsn)
+library(scales)
+library(gridExtra)
+library(knitr)
+library(lubridate)
+library(qwraps2)
+
+#knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+```
+<style type="text/css">
+
+body, td {
+   font-size: 18px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 18px
+}
+</style>
+
+# Data Download and Restructuring
+
+The Cyclistic bike share data for April 2021 to March 2022 was downloaded from https://divvy-tripdata.s3.amazonaws.com/. The data came in 12 zipped files with one for each month. One file was unzipped and inspected to understand the data structure. All files were downloaded, listed, unzipped and merged using R. The merged file was saved to ensure easy recall for analysis. Figure 1 below shows the summary of the data sets including coordinate ranges. 
+\
+
+```{r files, echo=FALSE}
+setwd("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data")
+Sum1 <- read.csv("SNewSum.csv" , header=T) ##General summary
+##File for monthly summaries
+CYM <- read.csv("Cyclistic_Monthly_summary.csv" , header=T) ##Monthly data
+CYW <- read.csv("Cyclistic_Weekly_summary.csv" , header=T)##Weekly data
+##General Summary
+Summary1 <- read.csv("Cyclistic_summary2.csv" , header=T) #Summary
+colnames(Summary1) <- c("Membership Type","Casual","Member")
+Stnid <- read.csv("Cyclistic_StnId_summaryC.csv", header=T)#Point data
+SLonglat2 <- st_as_sf(Stnid, coords = c("Long", "Lat"),crs = 4326)
+```
+
+
+```{r, echo=FALSE, results='asis',out.width='100%',results='asis', fig.cap="\\label{fig:fig1}Figure 1: Screenshot from R showing a general summary of the Cyclistic data for April 2021 to March 2022."}
+
+knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Screengrab.PNG")
+
+```
+\
+
+# Data Analysis
+## Data summary
+
+ R packages such as tidyverse, dplyr, ggplot2, leaflet and data.table were used to clean, fill and analyze the data. The R package knitr was used for reporting. An initial assessment showed that some stations had coordinates, station names or station IDs missing. Missing coordinates were filled in pairs using information from  known coordinates of grouped station IDs and Name. Missing station names and IDs were filled using information from stations with matching coordinates. Data download, unzipping, cleaning and analysis were done using R. Excel was used to clean up the summary table included in this report.
+A location far away from the Chicago area (73.8$^\circ$W) was deleted as it fell outside the region of interest (between Longitude 88$^\circ$W to 87$^\circ$W and Latitude 41$^\circ$N to 42.1$^\circ$N on the WGS 84 coordinate reference system). The Longest ride recorded was for approximately 932.5 hours (about 30 times the average ride time for other records).
+
+\
+```{r, echo=FALSE, results='asis'}
+
+knitr::kable(Summary1, caption= "Table 2: Data summary showing most used stations and popular travel time/day by membership type and more.")
+
+```
+\
+
+Station 13022 (Streeter Dr & Grand) was the most popular pick up point 81,754 rides and highest total ride time (3199815.5 minutes) with Ave as the most popular pick up point. The next top 10 stations had between 34,121 and 46,607 rides thoroughout the year. The least popular station were 437, 465, and Throop/Hastings Mobile Station with 1 ride each. Station 13022 also had the highest number of bike returns (83,207). 5pm (peak rush hour) was the busiest hour for bike rides by casual riders and annual members.
+
+\
+
+```{r, echo=FALSE, leaflet, out.width='100%',results='asis', fig.cap="\\label{fig:fig1} Figure 2: Map showing Total rides recorded at each station."}
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+palette_C <- colorRampPalette(colors = c("gray30","lightsteelblue4", "lightsteelblue1",
+                      "yellow1","violet","violetred4"))(8)
+pal2 <- leaflet::colorBin(palette = palette_C,
+                  bins =6,
+                  domain =  SLonglat2$Total_rides,
+                  na.color = "white")
+
+leaflet(SLonglat2,options = leafletOptions(zoomControl = T,
+                                           minZoom =9, maxZoom = 15)) %>% #addTiles() %>%
+addProviderTiles(providers$CartoDB.Positron) %>%
+  addCircleMarkers( radius = ~ sqrt(Total_rides/700),color = ~pal2(Total_rides), 
+                    stroke = FALSE, fillOpacity = 0.75,
+                    popup = paste("Station ID: ",SLonglat2$start_station_id, "<br>",
+                                  "Station Name: ",SLonglat2$start_station_name, "<br>",
+                                  "Total Rides: ", SLonglat2$Total_rides, "<br>")) %>% 
+addLegend("topright", pal = pal2, values = ~ Total_rides,
+          title = "Total rides per station",opacity = 1)
+#widgetframe::frameWidget(A, width = "100%")
+
+```
+\
+
+Total bike rides were lower at stations far away from the bustling Chicago city and its shoreline. An assessment of Station 13022 (Streeter Dr & Grand Ave) shows that it is in an area by close to the shoreline with busy commute due to the location of tourism spots such as a children's museum and a habour and school/work related travel (with institutions like Northwestern University closeby). Other stations that recorded at least 40,000 bike pick ups where located not too far from the Chicago shoreline. The aesthetics of the area around Station 13022 could be encouraging more bike travel while sight seeing.  Station KA1503000043 (Kingsbury St & Kinzie St) was most popular among annual menbers and recorded 34,121 rides throughout the year. It is located in a densly populated area of chicago with shops and offices.
+
+\
+```{r, echo=FALSE, out.width='100%', fig.cap="\\label{fig:fig1}Figure 3a: Google Earth Imagery from July 2021 showing major landmarks near Station 13022 (Streeter Dr & Grand Ave) which was popular among casual riders. "}
+
+##Specify full image path to avoid errors
+knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Stn13022Chicago.PNG")
+
+```
+\
+
+
+```{r, echo=FALSE, out.width='100%', fig.cap="\\label{fig:fig1}Figure 3b: Google Earth Imagery from July 2021 showing major landmarks near Station KA1503000043 (Kingsbury St & Kinzie St) wich was popular among annual members. "}
+
+##Specify full image path to avoid errors
+knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Kingsbury.PNG")
+
+```
+\
+
+## How do annual members and casual riders use Cyclistic monthly and weekly?
+
+The analysis showed that docked bikes were only used by casual riders with an annual peak in June (early summer). Casual riders used the classic and eletric bikes at lower rates than annual members in January, February, March, November, and December). Casual riders rode the bikes for longer than annual members between May and October 2021. These months also have longer daylight hours. This suggests that a lot of casual riders use the bikes in months with peak tourism in the Chicago area. 
+
+```{r fig.width=10, fig.height=8, echo=FALSE,fig.cap="\\label{fig:fig1}Figure 4: Monthly bike use patterns for casual riders and annual members of Cyclistic. "}
+##List Months
+Months<- c("January","February","March","April","May","June",
+           "July","August","September","October","November","December")
+##List bike types
+Bikes<-c("classic_bike"="Classic Bike","docked_bike"="Docked Bike",
+         "electric_bike"="Electric Bike")
+A<- ggplot(CYM, aes(fill=member_casual, y=Total_rides, x=as.factor(Month))) + theme_gray() +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 45,hjust=1,vjust=1),
+         axis.text.y = element_text(face="bold", size=9),
+          strip.text = element_text(face="bold", size=10),legend.margin=margin(-20, 0, 0, 0),
+        plot.title = element_text(color="gray25",size=11,hjust = 0.5,face="bold"))+ 
+  coord_flip()+ggtitle("(a) Total Rides Per Month")+
+    geom_bar(position="stack", stat="identity")+
+  scale_fill_manual("",values=c("aquamarine3","aquamarine4")) +
+ facet_wrap(~ rideable_type,labeller = as_labeller(Bikes))+ ylab("")+
+  xlab("")+scale_x_discrete(labels= Months)+ scale_y_continuous(labels = comma)
+
+
+B<- ggplot(CYM, aes(fill=member_casual, y=Ride_Length, x=as.factor(Month))) + 
+  geom_bar(position="stack", stat="identity") +theme_gray () +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 45,hjust=1,vjust=1),
+        axis.text.y = element_text(face="bold", size=9),
+        strip.text = element_text(face="bold", size=10),legend.margin=margin(-20, 0, 0, 0),
+        plot.title = element_text(color="gray25",size=11,hjust = 0.5,face="bold"))+ 
+  scale_fill_manual("",values=c("lightsteelblue3","lightsteelblue4")) +
+   coord_flip() +ggtitle("(b) Total Ride Duration Per Month")+
+  facet_wrap(~ rideable_type,labeller = as_labeller(Bikes)) + ylab("")+
+  xlab("")+scale_x_discrete(labels= Months)+ scale_y_continuous(labels = comma)
+
+grid.arrange(A,B,ncol=1)
+
+```
+\
+
+The weekly charts showed more travel on Saturdays and Sundays among casual riders. Annual members used the bikes more than casual riders during the week. These casual riders also rode the bikes for longer on weekends compared to the annaul members. Annual members rode the bikes for nearly the same period of time throughout the week. This further suggests that most casual riders use the bikes for tourism related or leisure rides. 
+\
+\
+```{r fig.width=10, fig.height=6, echo=FALSE,fig.cap="\\label{fig:fig1}Figure 5: Weekly bike use patterns for casual riders and annual members of Cyclistic. "}
+##List Weeks
+Weekday<- c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday") 
+
+Bikes<-c("classic_bike"="Classic Bike","docked_bike"="Docked Bike",
+         "electric_bike"="Electric Bike")
+A1<- ggplot(CYW, aes(fill=member_casual, y=Total_rides, x=as.factor(day_of_the_week))) + theme_gray() +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 45,hjust=1,vjust=1),
+        axis.text.y = element_text(face="bold", size=9),
+        strip.text = element_text(face="bold", size=10),legend.margin=margin(-20, 0, 0, 0),
+        plot.title = element_text(color="gray25",size=11,hjust = 0.5,face="bold"))+ 
+  coord_flip()+ggtitle("(a) Total Rides Per Week")+
+  geom_bar(position="stack", stat="identity")+
+  scale_fill_manual("",values=c("orchid3","orchid4")) +
+  facet_wrap(~ rideable_type,labeller = as_labeller(Bikes))+ ylab("")+
+  xlab("")+scale_x_discrete(labels= Weekday)+ scale_y_continuous(labels = comma)
+
+
+B1<- ggplot(CYW, aes(fill=member_casual, y=Ride_Length, x=as.factor(day_of_the_week))) + 
+  geom_bar(position="stack", stat="identity") +theme_gray () +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 45,hjust=1,vjust=1),
+        axis.text.y = element_text(face="bold", size=9),
+        strip.text = element_text(face="bold", size=10),legend.margin=margin(-20, 0, 0, 0),
+        plot.title = element_text(color="gray25",size=11,hjust = 0.5,face="bold"))+ 
+  scale_fill_manual("",values=c("mediumturquoise","cyan4")) +
+  coord_flip() +ggtitle("(b) Total Ride Duration Per Week")+
+  facet_wrap(~ rideable_type,labeller = as_labeller(Bikes)) + ylab("")+
+  xlab("")+scale_x_discrete(labels= Weekday)+ scale_y_continuous(labels = comma)
+
+grid.arrange(A1,B1,ncol=1)
+
+```
+\
+
+# Recommendations
+The results showed a clear difference between bike usage by casual riders and annual members in summer months and weekends. This suggests tourism related bike rides by casual riders in seasons and days when tourism related travel happens more. To encourage more casual riders to become annual members, the following recommendations should be considered: 
+
+* Annual memberships targeting casual riders should come with perks such as discounted shopping in partner stores in the Chicago area and Illinois as a whole. This could also be extended to customers who live outside Illinois but in neighboring states such as Wisconsin, Iowa, and Indiana.
+* Ad campaigns should target users of tourism sites such as AirBnB and Booking.com in the Chicago area and neigbouring counties on Google, Instagram, Facebook and other social media platforms. Ads on platforms popular with youths will ensure that students of Northwestern University get to see the Ads too. The Ads should include a direct link to the membership registration page of Cyclistic. This will make it easier for regular casual riders to register without searching or navigating the website. This page should be interactive and customer-friendly enough to ensure that registration can be completed in less than 10 minutes.
+* Cyclistic could partner with the local transit companies so that the annual memberships can be used on buses and ferries around the city too. This way, casual riders can purchase the annual membership as it would give them discounted access to other transit services.
+\
+\
+
+**NOTE:**
+*This is NOT an official document related to any company. It is the output for the Google Data Analytics Capstone project submitted by Dr Ajoke Onojeghuo. The data has been made available under [license](https://ride.divvybikes.com/data-license-agreement) from Motivate International Inc.*
