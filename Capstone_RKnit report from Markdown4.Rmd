@@ -2,7 +2,7 @@
 title: "Maximizing Bike-Share Customer Membership Rates at Cylistic"
 subtitle: "Descriptive analysis and recommendations"
 author: "DR Ajoke Onojeghuo"
-date: "May 7, 2022"
+date: "May 14, 2022"
 geometry: margin=7cm
 output:
   html_document:
@@ -17,7 +17,7 @@ header includes:
 ---
 
 ```{r, echo=FALSE,fig.width=0.1, fig.height=0.1}
-htmltools::img(src = knitr::image_uri("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Cyclistic.png"), 
+htmltools::img(src = knitr::image_uri("D:/Ajoke/GoogleDataAnalytics/Course_8_Capstone_Project/Cyclistic_Data/Summarized_data/Cyclistic.png"), 
                alt = 'logo', 
                style = ' top:50px;left:200px; right:250px; padding:20px; width: 180px; height: 180px')
 ```
@@ -82,7 +82,7 @@ The Cyclistic bike share data for April 2021 to March 2022 was downloaded from h
 \
 
 ```{r files, echo=FALSE}
-setwd("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data")
+setwd("D:/Ajoke/GoogleDataAnalytics/Course_8_Capstone_Project/Cyclistic_Data/Summarized_data")
 Sum1 <- read.csv("SNewSum.csv" , header=T) ##General summary
 ##File for monthly summaries
 CYM <- read.csv("Cyclistic_Monthly_summary.csv" , header=T) ##Monthly data
@@ -97,7 +97,7 @@ SLonglat2 <- st_as_sf(Stnid, coords = c("Long", "Lat"),crs = 4326)
 
 ```{r, echo=FALSE, results='asis',out.width='100%',results='asis', fig.cap="\\label{fig:fig1}Figure 1: Screenshot from R showing a general summary of the Cyclistic data for April 2021 to March 2022."}
 
-knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Screengrab.PNG")
+knitr::include_graphics("D:/Ajoke/GoogleDataAnalytics/Course_8_Capstone_Project/Cyclistic_Data/Summarized_data/Screengrab.PNG")
 
 ```
 \
@@ -116,7 +116,7 @@ knitr::kable(Summary1, caption= "Table 2: Data summary showing most used station
 ```
 \
 
-Station 13022 (Streeter Dr & Grand) was the most popular pick up point 81,754 rides and highest total ride time (3199815.5 minutes) with Ave as the most popular pick up point. The next top 10 stations had between 34,121 and 46,607 rides thoroughout the year. The least popular station were 437, 465, and Throop/Hastings Mobile Station with 1 ride each. Station 13022 also had the highest number of bike returns (83,207). 5pm (peak rush hour) was the busiest hour for bike rides by casual riders and annual members.
+Figure 2 is an interactive leaflet map showing the bike-share start stations in the Chicago area (click on each circle for total rides per station). Station 13022 (Streeter Dr & Grand) was the most popular pick up point 81,754 rides and highest total ride time (3199815.5 minutes) with Ave as the most popular pick up point. The next top 10 stations had between 34,121 and 46,607 rides thoroughout the year. The least popular station were 437, 465, and Throop/Hastings Mobile Station with 1 ride each. Station 13022 also had the highest number of bike returns (83,207). 5pm (peak rush hour) was the busiest hour for bike rides by casual riders and annual members.
 
 \
 
@@ -144,13 +144,13 @@ addLegend("topright", pal = pal2, values = ~ Total_rides,
 ```
 \
 
-Total bike rides were lower at stations far away from the bustling Chicago city and its shoreline. An assessment of Station 13022 (Streeter Dr & Grand Ave) shows that it is in an area by close to the shoreline with busy commute due to the location of tourism spots such as a children's museum and a habour and school/work related travel (with institutions like Northwestern University closeby). Other stations that recorded at least 40,000 bike pick ups where located not too far from the Chicago shoreline. The aesthetics of the area around Station 13022 could be encouraging more bike travel while sight seeing.  Station KA1503000043 (Kingsbury St & Kinzie St) was most popular among annual menbers and recorded 34,121 rides throughout the year. It is located in a densly populated area of chicago with shops and offices.
+Total bike rides were lower at stations far away from the bustling Chicago city and its shoreline (Figure 3a). An assessment of Station 13022 (Streeter Dr & Grand Ave) showed that it is in an area close to the shoreline with busy commute due to tourism spots such as a children's museum and a habour and school/work related travel (with institutions like Northwestern University closeby). Other stations that recorded at least 40,000 bike pick ups where located not too far from the Chicago shoreline. The aesthetics of the area around Station 13022 could be encouraging more bike travel while sight seeing. Station KA1503000043 (Kingsbury St & Kinzie St) was most popular among annual members and recorded 34,121 rides throughout the year (Figure 3b). It is located in a densly populated area of chicago with shops and offices.
 
 \
 ```{r, echo=FALSE, out.width='100%', fig.cap="\\label{fig:fig1}Figure 3a: Google Earth Imagery from July 2021 showing major landmarks near Station 13022 (Streeter Dr & Grand Ave) which was popular among casual riders. "}
 
 ##Specify full image path to avoid errors
-knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Stn13022Chicago.PNG")
+knitr::include_graphics("D:/Ajoke/GoogleDataAnalytics/Course_8_Capstone_Project/Cyclistic_Data/Summarized_data/Stn13022Chicago.PNG")
 
 ```
 \
@@ -159,14 +159,14 @@ knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Projec
 ```{r, echo=FALSE, out.width='100%', fig.cap="\\label{fig:fig1}Figure 3b: Google Earth Imagery from July 2021 showing major landmarks near Station KA1503000043 (Kingsbury St & Kinzie St) wich was popular among annual members. "}
 
 ##Specify full image path to avoid errors
-knitr::include_graphics("D:/Ajoke/Google Data Analytics/Course 8_Capstone Project/Cyclistic_Data/Summarized_data/Kingsbury.PNG")
+knitr::include_graphics("D:/Ajoke/GoogleDataAnalytics/Course_8_Capstone_Project/Cyclistic_Data/Summarized_data/Kingsbury.PNG")
 
 ```
 \
 
 ## How do annual members and casual riders use Cyclistic monthly and weekly?
 
-The analysis showed that docked bikes were only used by casual riders with an annual peak in June (early summer). Casual riders used the classic and eletric bikes at lower rates than annual members in January, February, March, November, and December). Casual riders rode the bikes for longer than annual members between May and October 2021. These months also have longer daylight hours. This suggests that a lot of casual riders use the bikes in months with peak tourism in the Chicago area. 
+The analysis showed that docked bikes were only used by casual riders with an annual peak period in June (early summer). Casual riders used the classic and eletric bikes at lower rates than annual members in January, February, March, November, and December (See Figure 4). Casual riders rode the bikes for longer than annual members between May and October 2021. These months also have longer daylight hours. This suggests that a lot of casual riders use the bikes in months with peak tourism in the Chicago area. 
 
 ```{r fig.width=10, fig.height=8, echo=FALSE,fig.cap="\\label{fig:fig1}Figure 4: Monthly bike use patterns for casual riders and annual members of Cyclistic. "}
 ##List Months
@@ -203,7 +203,7 @@ grid.arrange(A,B,ncol=1)
 ```
 \
 
-The weekly charts showed more travel on Saturdays and Sundays among casual riders. Annual members used the bikes more than casual riders during the week. These casual riders also rode the bikes for longer on weekends compared to the annaul members. Annual members rode the bikes for nearly the same period of time throughout the week. This further suggests that most casual riders use the bikes for tourism related or leisure rides. 
+The weekly charts showed more travel on Saturdays and Sundays among casual riders (Figure 5). Annual members used the bikes more than casual riders during the week. These casual riders also rode the bikes for longer on weekends compared to the annaul members. Annual members rode the bikes for nearly the same period of time throughout the week. This further suggests that most casual riders use the bikes for tourism related or leisure rides. 
 \
 \
 ```{r fig.width=10, fig.height=6, echo=FALSE,fig.cap="\\label{fig:fig1}Figure 5: Weekly bike use patterns for casual riders and annual members of Cyclistic. "}
@@ -250,4 +250,4 @@ The results showed a clear difference between bike usage by casual riders and an
 \
 
 **NOTE:**
-*This is NOT an official document related to any company. It is the output for the Google Data Analytics Capstone project submitted by Dr Ajoke Onojeghuo. The data has been made available under [license](https://ride.divvybikes.com/data-license-agreement) from Motivate International Inc.*
+*This is NOT an official document related to any company. It is the output for the Google Data Analytics Capstone project submitted by Dr Ajoke Onojeghuo. The Cyclistic data has been made available under [license](https://ride.divvybikes.com/data-license-agreement) from Motivate International Inc.*
