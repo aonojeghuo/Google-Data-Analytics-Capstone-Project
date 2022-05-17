@@ -241,7 +241,7 @@ grid.arrange(A1,B1,ncol=1)
 \
 
 # Recommendations
-The results showed a clear difference between bike usage by casual riders and annual members in summer months and weekends. This suggests tourism related bike rides by casual riders in seasons and days when tourism related travel happens more. To encourage more casual riders to become annual members, the following recommendations should be considered: 
+The results showed a clear difference between bike usage by casual riders and annual members in summer months and weekends. A Tableau Public dashboard showing these results can be found [here](https://public.tableau.com/app/profile/ajoke.onojeghuo/viz/CyclisticDataAnalysis_16527444370630/Dashboard1). This suggests tourism related bike rides by casual riders in seasons and days when tourism related travel happens more. To encourage more casual riders to become annual members, the following recommendations should be considered: 
 
 * Annual memberships targeting casual riders should come with perks such as discounted shopping in partner stores in the Chicago area and Illinois as a whole. This could also be extended to customers who live outside Illinois but in neighboring states such as Wisconsin, Iowa, and Indiana.
 * Ad campaigns should target users of tourism sites such as AirBnB and Booking.com in the Chicago area and neigbouring counties on Google, Instagram, Facebook and other social media platforms. Ads on platforms popular with youths will ensure that students of Northwestern University get to see the Ads too. The Ads should include a direct link to the membership registration page of Cyclistic. This will make it easier for regular casual riders to register without searching or navigating the website. This page should be interactive and customer-friendly enough to ensure that registration can be completed in less than 10 minutes.
@@ -250,4 +250,6 @@ The results showed a clear difference between bike usage by casual riders and an
 \
 
 **NOTE:**
-*This is NOT an official document related to any company. It is the output for the Google Data Analytics Capstone project submitted by Dr Ajoke Onojeghuo. The Cyclistic data has been made available under [license](https://ride.divvybikes.com/data-license-agreement) from Motivate International Inc.*
+*This is NOT an official document related to any company. It is the output for the Google Data Analytics Capstone project submitted by Dr Ajoke Onojeghuo. The Rmarkdown codes for this analysis can be found [here](https://github.com/aonojeghuo/Google-Data-Analytics-Capstone-Project/blob/main/Capstone_RKnit%20report%20from%20Markdown4.Rmd). The Cyclistic data has been made available under [license](https://ride.divvybikes.com/data-license-agreement) from Motivate International Inc.*
+
+\
